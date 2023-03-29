@@ -1,9 +1,9 @@
-import "./Profile.css";
+import "../style/Profile.css";
 function Profile() {
   return (
     <div className="layout">
-      <img src="assets/me.jpg" alt="Avatar" />
-      <h1 className="name">realchanatong</h1>
+      <img src="assets/sun.jpg" alt="Avatar" />
+      <h1 className="name">Sunnnn</h1>
       <hr></hr>
     </div>
   );

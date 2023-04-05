@@ -1,26 +1,26 @@
-.layout {
+.layout{
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-img {
+img{
     border-radius: 50%;
     margin: 0;
-    width: 50%;
-
+    width: 200px;
+    height: 200px;
 }
 
-.name {
+.name{
     font-size: 2rem;
     font-weight: 500;
     margin: 20px;
     color: #727373;
 }
 
-hr {
+hr{
     width: 300px;
-    background-color: #a08bff;
+    background-color: #a06bff;
     height: 5px;
     border-radius: 20px;
     border: none 0;

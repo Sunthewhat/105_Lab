@@ -12,11 +12,13 @@ function TodoPage() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-      }}>
+      }}
+    >
       <Box
         sx={{
           display: { xs: "none", md: "block" },
-        }}>
+        }}
+      >
         <Home />
       </Box>
       <Box
@@ -29,13 +31,11 @@ function TodoPage() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Todo />
       </Box>
-      <Box
-        sx={{
-          display: { md: "none" },
-        }}>
+      <Box sx={{ display: { md: "none" } }}>
         <BottomNav />
       </Box>
     </Box>

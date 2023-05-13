@@ -1,23 +1,88 @@
 import { Button, Card, TextField, Typography } from '@mui/material';
 import React, { useCallback, useState } from 'react';
+import Cookies from 'js-cookie';
+import Axios from '../../../AxiosInstance';
+import { AxiosError } from 'axios';
+import { useContext } from 'react';
+import GlobalContext from '../../../Context/GlobalContext';
 
-const CommentCard = ({ comment = { id: -1, msg: '' } }) => {
+const CommentCard = ({ comment = { id: -1, msg: '' }, setComments = () => {} }) => {
   const [isConfirm, setIsConfirm] = useState(false);
   const [functionMode, setFunctionMode] = useState('update');
   const [msg, setMsg] = useState(comment.msg);
+  const [error, setError] = useState({});
+  const { user, setStatus } = useContext(GlobalContext);
 
-  const submit = useCallback(() => {
+  const checkValidateForm = () => {
+    const error = {};
+    if (msg == '') error.message = 'Comment cannot be empty';
+    setError(error);
+    if (Object.keys(error).length) return false;
+    return true;
+  };
+
+  const submit = useCallback(async () => {
     if (functionMode === 'update') {
       // TODO implement update logic
-      console.log('update');
+      try {
+        const userToken = Cookies.get('UserToken');
+        if (!checkValidateForm()) return; // Check if the comment is not empty or blank
+        const response = await Axios.patch(
+          '/comment',
+          {
+            text: msg,
+            commentId: comment.id,
+          },
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+          }
+        );
+
+        if (response.data.success) {
+          // update comment in the parent component
+          comment.msg = response.data.data.text;
+          setStatus({ severity: 'success', msg: 'Update success' });
+          // console.log('Update success');
+          cancelAction(); // to toggle off the confirm
+        } else {
+          console.log('Failed to update comment');
+        }
+      } catch (error) {
+        if (error instanceof AxiosError && error.response) {
+          console.log(error.response.data);
+        } else {
+          console.log(error.message);
+        }
+      }
     } else if (functionMode === 'delete') {
-      // TODO implement delete logic
-      console.log('delete');
+      // Send DELETE request to the server
+      try {
+        const userToken = Cookies.get('UserToken');
+        const response = await Axios.delete('/comment', {
+          headers: { Authorization: `Bearer ${userToken}` },
+          data: { commentId: comment.id },
+        });
+        if (response.data.success) {
+          // Perform any necessary actions after successful deletion
+          setComments((comments) => comments.filter((c) => c.id !== comment.id));
+          setStatus({ severity: 'success', msg: 'Comment deleted successfully' });
+          // console.log('Comment deleted successfully');
+          cancelAction(); // to toggle off the confirm
+        } else {
+          console.log('Failed to delete comment');
+        }
+      } catch (error) {
+        if (error instanceof AxiosError && error.response) {
+          console.log(error.response.data);
+        } else {
+          console.log(error.message);
+        }
+      }
     } else {
       // TODO setStatus (snackbar) to error
       console.log('error');
     }
-  }, [functionMode]);
+  }, [functionMode, msg]);
 
   const changeMode = (mode) => {
     setFunctionMode(mode);
@@ -34,7 +99,13 @@ const CommentCard = ({ comment = { id: -1, msg: '' } }) => {
       {!(isConfirm && functionMode == 'update') ? (
         <Typography sx={{ flex: 1 }}>{comment.msg}</Typography>
       ) : (
-        <TextField sx={{ flex: 1 }} value={msg} onChange={(e) => setMsg(e.target.value)} />
+        <TextField
+          sx={{ flex: 1 }}
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          error={!!error.message}
+          helperText={error.message}
+        />
       )}
       {!isConfirm ? (
         <Button onClick={() => changeMode('update')} variant="outlined" color="info">
